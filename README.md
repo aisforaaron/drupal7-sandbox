@@ -2,4 +2,6 @@
 Drupal7 Vagrant/Ansible Sandbox
 
 
-Ansible playbooks are currently in another repo and have to be run manually.
+Notes
+- Admin user/pass is admin/admin
+- Drush is used to setup the site, but no sample data has been added

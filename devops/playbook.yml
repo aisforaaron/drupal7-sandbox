@@ -1,0 +1,79 @@
+---
+# Playbook to build a sandbox for Drupal 7
+- hosts: all
+  sudo: yes
+  vars:
+    # apache
+    http_port: '80'
+    domain: 'drupal7.local'
+    # php
+    max_execution_time: '60'
+    memory_limit: '256M'
+    error_reporting: 'E_ALL & ~E_DEPRECATED & ~E_STRICT'
+    upload_max_filesize: '10M'
+  tasks:
+    - name: install packages
+      apt: name={{ item }} update_cache=yes state=latest
+      with_items:
+        - apache2
+        - git
+        - python-mysqldb
+        - mysql-server 
+        - libapache2-mod-auth-mysql
+        - php5
+        - libapache2-mod-php5
+        - php5-curl
+        - php5-mcrypt
+        - php5-mysql
+        - php5-gd
+        - php5-intl
+        - php-pear
+        - php5-imagick
+        - php5-imap
+        - php5-mcrypt
+        - php5-tidy
+        - php5-xmlrpc 
+        - make
+        - screen
+        - build-essential
+        - sendmail
+        - pv
+        - drush
+
+    # apache configurations
+    - name: enabled mod_rewrite
+      apache2_module: name=rewrite state=present
+      notify:
+        - restart apache2
+
+    # apache vhost
+    - name: create virtual host file
+      template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ domain }}
+
+    - name: a2ensite vhost
+      command: a2ensite {{ domain }}
+      args:
+        creates: /etc/apache2/sites-enabled/{{ domain }}.conf
+      notify:
+      - restart apache2
+
+    # create mysql db & user
+    - name: add new sandbox db
+      mysql_db: name=sandbox state=present
+
+    - name: Create database user
+      mysql_user: user=drupal password=drupal priv=*.*:ALL state=present
+
+    # create files dir - mode doesn't work?? might need to run this from host manually?
+    - file: path=/vagrant_data/{{ domain }}/sites/default/files state=directory mode=0777
+
+    # run site install with drush
+    - shell: drush site-install -y --db-url=mysql://drupal:drupal@localhost:3306/sandbox --account-pass=admin --site-name='Drupal 7 Sandbox'
+      args:
+        chdir: /vagrant_data/{{ domain }}/
+      tags:
+          - init
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted

@@ -1,0 +1,9 @@
+# Ignored files
+.DS_Store
+.vagrant
+
+# drupal files
+sites/default/settings.php
+
+# folder
+sites/default/files/*
