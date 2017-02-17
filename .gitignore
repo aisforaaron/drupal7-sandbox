@@ -1,9 +1,11 @@
 # Ignored files
 .DS_Store
 .vagrant
+.idea
 
 # drupal files
-sites/default/settings.php
+share/drupal7.local/sites/all/modules/*
+share/drupal7.local/sites/all/themes/*
 
 # folder
-sites/default/files/*
+localdev/*
