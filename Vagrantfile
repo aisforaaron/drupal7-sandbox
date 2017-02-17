@@ -10,6 +10,17 @@ Vagrant.configure(2) do |config|
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
 
+  # Hosts Manager Plugin Config
+  # https://github.com/devopsgroup-io/vagrant-hostmanager#usage
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+  config.hostmanager.ignore_private_ip = false
+  config.hostmanager.include_offline = true
+
+  # This is used for hosts manager
+  config.vm.hostname = "drupal7.local"
+
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "hashicorp/precise64"
@@ -37,14 +48,20 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "share", "/vagrant_data"
+  # config.vm.synced_folder "share", "/vagrant_data"
+
+  # Vagrant v1.1+
+  config.vm.synced_folder "share", "/vagrant_data", id: "vagrant-root",
+    owner: "vagrant",
+    group: "www-data",
+    mount_options: ["dmode=775,fmode=664"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
-    vb.name = "drupal7-sandbox"
+      vb.name = "drupal7-sandbox"
   #   # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
   #

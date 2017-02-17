@@ -50,6 +50,11 @@
     - name: create virtual host file
       template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ domain }}
 
+    - name: turn default apache2 site off
+      command: a2dissite default
+      notify:
+      - restart apache2
+
     - name: a2ensite vhost
       command: a2ensite {{ domain }}
       args:
