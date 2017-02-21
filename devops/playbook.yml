@@ -2,15 +2,17 @@
 # Playbook to build a sandbox for Drupal 7
 - hosts: all
   sudo: yes
+# user: vagrant
+# remote_user:
   vars:
     # apache
     http_port: '80'
     domain: 'drupal7.local'
     # php
-    max_execution_time: '60'
-    memory_limit: '256M'
-    error_reporting: 'E_ALL & ~E_DEPRECATED & ~E_STRICT'
-    upload_max_filesize: '10M'
+#    max_execution_time: '60'
+#    memory_limit: '256M'
+#    error_reporting: 'E_ALL & ~E_DEPRECATED & ~E_STRICT'
+#    upload_max_filesize: '10M'
   tasks:
     - name: install packages
       apt: name={{ item }} update_cache=yes state=latest
@@ -38,46 +40,38 @@
         - build-essential
         - sendmail
         - pv
-        - drush
+
+    # Install Drush from script
+#    - name: Install drush from devops/drush-install.sh
+#      script: drush-install.sh
 
     # apache configurations
-    - name: enabled mod_rewrite
+    - name: apache | enabled mod rewrite
       apache2_module: name=rewrite state=present
       notify:
         - restart apache2
 
-    # apache vhost
-    - name: create virtual host file
-      template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ domain }}
+    - name: apache | create virtual host file
+      template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ domain }}.conf
 
-    - name: turn default apache2 site off
-      command: a2dissite default
+    - name: apache | turn default apache2 site off
+      command: a2dissite 000-default.conf
       notify:
       - restart apache2
 
-    - name: a2ensite vhost
-      command: a2ensite {{ domain }}
+    - name: apache | a2ensite vhost
+      command: a2ensite {{ domain }}.conf
       args:
         creates: /etc/apache2/sites-enabled/{{ domain }}.conf
       notify:
       - restart apache2
 
     # create mysql db & user
-    - name: add new sandbox db
+    - name: mysql | add new sandbox db
       mysql_db: name=sandbox state=present
 
-    - name: Create database user
+    - name: mysql | Create database user
       mysql_user: user=drupal password=drupal priv=*.*:ALL state=present
-
-    # create files dir - mode doesn't work?? might need to run this from host manually?
-    - file: path=/vagrant_data/{{ domain }}/sites/default/files state=directory mode=0777
-
-    # run site install with drush
-    - shell: drush site-install -y --db-url=mysql://drupal:drupal@localhost:3306/sandbox --account-pass=admin --site-name='Drupal 7 Sandbox'
-      args:
-        chdir: /vagrant_data/{{ domain }}/
-      tags:
-          - init
 
   handlers:
     - name: restart apache2

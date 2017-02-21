@@ -23,7 +23,8 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "hashicorp/precise64"
+  # config.vm.box = "hashicorp/precise64"
+  config.vm.box = "ubuntu/trusty64"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -49,8 +50,6 @@ Vagrant.configure(2) do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "share", "/vagrant_data"
-
-  # Vagrant v1.1+
   config.vm.synced_folder "share", "/vagrant_data", id: "vagrant-root",
     owner: "vagrant",
     group: "www-data",
@@ -61,12 +60,12 @@ Vagrant.configure(2) do |config|
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
-      vb.name = "drupal7-sandbox"
-  #   # Display the VirtualBox GUI when booting the machine
+  # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
   #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
+  # Customize the amount of memory on the VM:
+    vb.memory = "1024"
+    vb.name = "drupal7-sandbox"
   end
   #
   # View the documentation for the provider you are using for more
